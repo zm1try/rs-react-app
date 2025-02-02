@@ -1,4 +1,4 @@
-import { CardListProps } from './CardListProps.interface.ts';
+import { CardListProps } from '../models/CardListProps.model.ts';
 import { Card } from './Card.tsx';
 import { Component } from 'react';
 

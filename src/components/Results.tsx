@@ -1,4 +1,4 @@
-import { ResultsProps } from './ResultsProps.interface.ts';
+import { ResultsProps } from '../models/ResultsProps.model.ts';
 import { Component } from 'react';
 import { CardList } from './CardList.tsx';
 import { CardsHeader } from './CardsHeader.tsx';

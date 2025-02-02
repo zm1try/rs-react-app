@@ -1,4 +1,4 @@
-import { CardProps } from './CardProps.interface.ts';
+import { CardProps } from '../models/CardProps.model.ts';
 import { Component } from 'react';
 import './Card.css';
 

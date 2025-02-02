@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { SearchProps } from './SearchProps.interface.ts';
+import { SearchProps } from '../models/SearchProps.model.ts';
 import './Search.css';
 
 export class Search extends Component<SearchProps> {

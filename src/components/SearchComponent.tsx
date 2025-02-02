@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { SearchComponentState } from './SearchComponentState.interface.ts';
+import { SearchComponentState } from '../models/SearchComponentState.model.ts';
 import { Search } from './Search.tsx';
 import { Results } from './Results.tsx';
 

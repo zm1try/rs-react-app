@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundaryProps } from './ErrorBoundaryProps.interface.ts';
+import { ErrorBoundaryProps } from '../models/ErrorBoundaryProps.model.ts';
 
 export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
