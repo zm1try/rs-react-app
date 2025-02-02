@@ -28,8 +28,8 @@ export class SearchComponent extends Component<object, SearchComponentState> {
     try {
       // Construct the URL based on whether there is a search term
       const url = searchTerm
-        ? `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}&search=${searchTerm}`
-        : `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
+        ? `https://swapi.dev/api/people/?offset=${offset}&limit=${limit}&search=${searchTerm}`
+        : `https://swapi.dev/api/people/?offset=${offset}&limit=${limit}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Network response was not ok');

@@ -8,7 +8,7 @@ export class App extends Component {
     return (
       <ErrorBoundary>
         <div>
-          <h1>Pokémon Search</h1>
+          <h1>swapi search</h1>
           <SearchComponent />
         </div>
       </ErrorBoundary>
