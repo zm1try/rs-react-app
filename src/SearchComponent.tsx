@@ -3,8 +3,8 @@ import { SearchComponentState } from './SearchComponentState.interface.ts';
 import { Search } from './Search.tsx';
 import { Results } from './Results.tsx';
 
-export class SearchComponent extends Component<null, SearchComponentState> {
-  constructor(props: null) {
+export class SearchComponent extends Component<object, SearchComponentState> {
+  constructor(props: object) {
     super(props);
     this.state = {
       items: [],
