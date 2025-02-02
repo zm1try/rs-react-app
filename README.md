@@ -1,1 +1,1 @@
-# React app for search pokemons
+# React app for search Star Wars characters
