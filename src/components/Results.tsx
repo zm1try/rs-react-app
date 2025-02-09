@@ -1,9 +1,8 @@
 import { type FC } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { ResultsProps } from '../models/ResultsProps.model.ts';
-import { ResultItem } from '../models/ResultItem.model.ts';
-import { Card } from './Card.tsx';
-import './Results.css';
+import { ResultsProps } from '../models/ResultsProps.model';
+import { ResultItem } from '../models/ResultItem.model';
+import { Card } from './Card';
 
 export const Results: FC<ResultsProps> = ({
   characters,

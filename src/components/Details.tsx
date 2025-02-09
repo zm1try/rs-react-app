@@ -1,9 +1,8 @@
-import { ResultItem } from '../models/ResultItem.model.ts';
+import { ResultItem } from '../models/ResultItem.model';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
-import { swapiService } from '../services/swapiService.tsx';
-import { Loader } from './Loader.tsx';
-import './Details.css';
+import { swapiService } from '../services/swapiService';
+import { Loader } from './Loader';
 
 export const Details = () => {
   const navigate = useNavigate();

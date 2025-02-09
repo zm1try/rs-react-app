@@ -1,4 +1,4 @@
-import { ResultItem } from './ResultItem.model.ts';
+import { ResultItem } from './ResultItem.model';
 
 export interface ResultsProps {
   characters: ResultItem[] | null;

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
-import { useLocalStorage } from '../services/useLocalStorage.tsx';
-import './Search.css';
+import { useLocalStorage } from '../services/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 
 type SearchFormProps = {
@@ -31,7 +30,7 @@ export function Search({ onSearch }: SearchFormProps) {
 
   return (
     <div>
-      <form className={'search-container'} onSubmit={handleSubmit}>
+      <form title="form" className={'search-container'} onSubmit={handleSubmit}>
         <input
           type="search"
           ref={searchInput}

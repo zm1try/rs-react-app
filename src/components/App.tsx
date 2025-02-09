@@ -1,15 +1,15 @@
 import './App.css';
 import { useState, useEffect, useCallback } from 'react';
-import { Search } from './Search.tsx';
-import { Results } from './Results.tsx';
-import { ResultItem } from '../models/ResultItem.model.ts';
-import { useLocalStorage } from '../services/useLocalStorage.tsx';
-import { swapiService } from '../services/swapiService.tsx';
-import { Loader } from './Loader.tsx';
-import { FooterActions } from './FooterActions.tsx';
+import { Search } from './Search';
+import { Results } from './Results';
+import { ResultItem } from '../models/ResultItem.model';
+import { useLocalStorage } from '../services/useLocalStorage';
+import { swapiService } from '../services/swapiService';
+import { Loader } from './Loader';
+import { FooterActions } from './FooterActions';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Details } from './Details.tsx';
-import { NotFoundPage } from './NotFoundPage.tsx';
+import { Details } from './Details';
+import { NotFoundPage } from './NotFoundPage';
 
 export const App = () => {
   const [characters, setCharacters] = useState<ResultItem[] | null>([]);

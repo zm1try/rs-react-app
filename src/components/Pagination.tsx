@@ -1,4 +1,3 @@
-import './Pagination.css';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 

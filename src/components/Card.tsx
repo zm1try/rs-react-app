@@ -1,4 +1,4 @@
-import { ResultItem } from '../models/ResultItem.model.ts';
+import { ResultItem } from '../models/ResultItem.model';
 
 type CardProps = {
   character: ResultItem;

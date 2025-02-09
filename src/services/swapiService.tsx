@@ -1,32 +1,24 @@
-import { ResultItem } from '../models/ResultItem.model.ts';
+import { ResultItem } from '../models/ResultItem.model';
 
-const fetchData = async (
-  url: string
-): Promise<
-  | ResultItem
-  | {
-      count: number;
-      next: string;
-      previous: string;
-      results?: ResultItem[];
-    }
-> => {
+interface Results {
+  count: number;
+  next: string;
+  previous: string;
+  results?: ResultItem[];
+}
+
+async function fetchData<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(response.status.toString());
   }
   return await response.json();
-};
+}
 
 const getCharactersBySearchTerm = async (
   searchQuery: string,
   page: number
-): Promise<{
-  count: number;
-  next: string;
-  previous: string;
-  results?: ResultItem[];
-}> => {
+): Promise<Results> => {
   const searchParams = new URLSearchParams([
     ['search', searchQuery],
     ['page', page.toString()],
