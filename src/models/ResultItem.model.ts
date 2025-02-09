@@ -1,4 +1,5 @@
 export interface ResultItem {
   name: string;
-  description: string;
+  url: string;
+  birth_year: string;
 }

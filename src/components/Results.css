@@ -1,0 +1,14 @@
+.results-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.results-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #213547;
+}

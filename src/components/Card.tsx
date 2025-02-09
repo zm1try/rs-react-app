@@ -1,15 +1,17 @@
-import { CardProps } from '../models/CardProps.model.ts';
-import { Component } from 'react';
-import './Card.css';
+import { ResultItem } from '../models/ResultItem.model.ts';
 
-export class Card extends Component<CardProps> {
-  render() {
-    const { pokemon } = this.props;
-    return (
-      <div className={'card'}>
-        <h3>{pokemon.name}</h3>
-        <p>{pokemon.url}</p>
-      </div>
-    );
-  }
-}
+type CardProps = {
+  character: ResultItem;
+  onClick: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    character: ResultItem
+  ) => void;
+};
+
+export const Card = ({ character, onClick }: CardProps) => {
+  return (
+    <button onClick={(event) => onClick(event, character)}>
+      <p>{character.name}</p>
+    </button>
+  );
+};

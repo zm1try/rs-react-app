@@ -1,7 +1,7 @@
-import { Pokemon } from './Pokemon.model.ts';
+import { ResultItem } from './ResultItem.model.ts';
 
 export interface ResultsProps {
-  items: Pokemon[];
-  isLoading: boolean;
-  error: string;
+  characters: ResultItem[] | null;
+  searchQuery: string;
+  errorMessage: string;
 }

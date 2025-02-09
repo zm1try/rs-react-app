@@ -1,35 +1,44 @@
-import { Component } from 'react';
-import { SearchProps } from '../models/SearchProps.model.ts';
+import { useEffect, useRef } from 'react';
+import type { FormEvent } from 'react';
+import { useLocalStorage } from '../services/useLocalStorage.tsx';
 import './Search.css';
+import { useNavigate } from 'react-router-dom';
 
-export class Search extends Component<SearchProps> {
-  state = { searchTerm: '' };
+type SearchFormProps = {
+  onSearch: (query: string) => void;
+};
 
-  componentDidMount() {
-    const savedSearchTerm = localStorage.getItem('searchTerm') || '';
-    this.setState({ searchTerm: savedSearchTerm });
-  }
+export function Search({ onSearch }: SearchFormProps) {
+  const navigate = useNavigate();
+  const searchInput = useRef<HTMLInputElement | null>(null);
+  const { loadSearchQuery, saveSearchQuery } =
+    useLocalStorage('ls-searchQuery');
 
-  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ searchTerm: event.target.value });
+  useEffect(() => {
+    const cachedValue = loadSearchQuery();
+    navigate('/characters');
+    if (cachedValue && searchInput.current) {
+      searchInput.current.value = cachedValue;
+    }
+  }, [navigate, loadSearchQuery]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const searchQuery = searchInput.current?.value?.trim() || '';
+    saveSearchQuery(searchQuery && searchQuery);
+    onSearch(searchQuery || '');
   };
 
-  handleSearch = () => {
-    this.props.onSearch(this.state.searchTerm);
-    localStorage.setItem('searchTerm', this.state.searchTerm);
-  };
-
-  render() {
-    return (
-      <div className={'search'}>
+  return (
+    <div>
+      <form className={'search-container'} onSubmit={handleSubmit}>
         <input
-          type="text"
-          value={this.state.searchTerm}
-          onChange={this.handleInputChange}
-          placeholder="Search Pokémon..."
+          type="search"
+          ref={searchInput}
+          placeholder="Enter something to search"
         />
-        <button onClick={this.handleSearch}>Search</button>
-      </div>
-    );
-  }
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  );
 }
