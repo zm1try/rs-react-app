@@ -1,0 +1,41 @@
+import { type FC } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { ResultsProps } from '../../models/ResultsProps.model';
+import { ResultItem } from '../../models/ResultItem.model';
+import { Card } from '../Card/Card';
+
+export const Results: FC<ResultsProps> = ({
+  characters,
+  searchQuery,
+  errorMessage,
+}) => {
+  const navigate = useNavigate();
+
+  const handleClickCard = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    character: ResultItem | null
+  ) => {
+    event.stopPropagation();
+    const id = character?.url.split('/').filter(Boolean).pop() || '';
+    navigate(`/details/${id}`);
+  };
+
+  const handleCloseCard = () => {
+    navigate(`/`);
+  };
+
+  return characters && characters.length > 0 ? (
+    <div className={'results-container'} onClick={handleCloseCard}>
+      <div className={'results-list'}>
+        {characters?.map((character: ResultItem) => (
+          <div className={'results-list__item'} key={character.name}>
+            <Card character={character} onClick={handleClickCard} />
+          </div>
+        ))}
+      </div>
+      <Outlet />
+    </div>
+  ) : (
+    !errorMessage && <p>Nothing to show for search term: {searchQuery}</p>
+  );
+};
