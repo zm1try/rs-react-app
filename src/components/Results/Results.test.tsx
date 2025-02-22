@@ -41,7 +41,7 @@ describe('Results', () => {
     );
 
     fireEvent.click(screen.getByText('Luke Skywalker'));
-    expect(mockNavigate).toHaveBeenCalledWith('/characters/details/1');
+    expect(mockNavigate).toHaveBeenCalledWith('/details/1');
   });
 
   it('shows a message when no characters are found and no error message is present', () => {

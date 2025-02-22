@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
-import { useLocalStorage } from '../services/useLocalStorage';
+import { useLocalStorage } from '../../services/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 
 type SearchFormProps = {
@@ -15,7 +15,7 @@ export function Search({ onSearch }: SearchFormProps) {
 
   useEffect(() => {
     const cachedValue = loadSearchQuery();
-    navigate('/characters');
+    navigate('/');
     if (cachedValue && searchInput.current) {
       searchInput.current.value = cachedValue;
     }

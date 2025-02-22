@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Details } from './Details';
-import * as swapiService from '../services/swapiService';
+import * as swapiService from '../../services/swapiService';
 
-jest.mock('../services/swapiService');
+jest.mock('../../services/swapiService.tsx');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ itemId: '1' }),

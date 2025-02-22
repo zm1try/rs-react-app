@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
 
 const mockLoadSearchQuery = jest.fn();
 const mockSaveSearchQuery = jest.fn();
-jest.mock('../services/useLocalStorage', () => ({
+jest.mock('../../services/useLocalStorage.tsx', () => ({
   useLocalStorage: () => ({
     loadSearchQuery: mockLoadSearchQuery,
     saveSearchQuery: mockSaveSearchQuery,

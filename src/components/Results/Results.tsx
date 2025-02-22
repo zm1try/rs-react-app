@@ -1,8 +1,8 @@
 import { type FC } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { ResultsProps } from '../models/ResultsProps.model';
-import { ResultItem } from '../models/ResultItem.model';
-import { Card } from './Card';
+import { ResultsProps } from '../../models/ResultsProps.model';
+import { ResultItem } from '../../models/ResultItem.model';
+import { Card } from '../Card/Card';
 
 export const Results: FC<ResultsProps> = ({
   characters,
@@ -17,11 +17,11 @@ export const Results: FC<ResultsProps> = ({
   ) => {
     event.stopPropagation();
     const id = character?.url.split('/').filter(Boolean).pop() || '';
-    navigate(`/characters/details/${id}`);
+    navigate(`/details/${id}`);
   };
 
   const handleCloseCard = () => {
-    navigate(`/characters`);
+    navigate(`/`);
   };
 
   return characters && characters.length > 0 ? (

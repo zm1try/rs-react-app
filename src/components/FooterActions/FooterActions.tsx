@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import { ThrowErrorButton } from './ThrowErrorButton';
-import { Pagination } from './Pagination';
+import { ThrowErrorButton } from '../ThrowErrorButton/ThrowErrorButton';
+import { Pagination } from '../Pagination/Pagination';
 
 type FooterActionsProps = {
   isPaginationVisible: boolean;

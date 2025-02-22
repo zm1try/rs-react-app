@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundaryProps } from '../models/ErrorBoundaryProps.model';
+import { ErrorBoundaryProps } from '../../models/ErrorBoundaryProps.model';
 
 type ErrorBoundaryState = {
   hasError: boolean;

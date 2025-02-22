@@ -24,7 +24,6 @@ const config: Config = {
     '!**/node_modules/**',
     '!**/*.test.tsx',
     '!src/tests/setupTests.ts',
-    '!src/components/App.tsx',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'lcov', 'text', 'clover'],

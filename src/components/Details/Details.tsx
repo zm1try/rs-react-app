@@ -1,8 +1,8 @@
-import { ResultItem } from '../models/ResultItem.model';
+import { ResultItem } from '../../models/ResultItem.model';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
-import { swapiService } from '../services/swapiService';
-import { Loader } from './Loader';
+import { swapiService } from '../../services/swapiService';
+import { Loader } from '../Loader/Loader';
 
 export const Details = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export const Details = () => {
   }, [itemId, loadData]);
 
   const handleMainClick = () => {
-    navigate('/characters');
+    navigate('/');
   };
 
   return loading ? (

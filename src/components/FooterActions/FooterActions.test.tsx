@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { FooterActions } from './FooterActions';
 
-jest.mock('./Pagination', () => ({
+jest.mock('../Pagination/Pagination.tsx', () => ({
   Pagination: () => <p>Pagination</p>,
 }));
 

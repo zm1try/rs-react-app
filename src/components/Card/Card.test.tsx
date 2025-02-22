@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Card } from './Card';
-import { ResultItem } from '../models/ResultItem.model';
+import { ResultItem } from '../../models/ResultItem.model';
 
 describe('Card', () => {
   const mockCharacter: ResultItem = {
