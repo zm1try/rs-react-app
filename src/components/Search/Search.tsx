@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
-import { useLocalStorage } from '../../services/useLocalStorage';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
+import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 
 type SearchFormProps = {
   onSearch: (query: string) => void;
@@ -29,8 +30,8 @@ export function Search({ onSearch }: SearchFormProps) {
   };
 
   return (
-    <div>
-      <form title="form" className={'search-container'} onSubmit={handleSubmit}>
+    <div className={'search-container'}>
+      <form title="form" className={'search-form'} onSubmit={handleSubmit}>
         <input
           type="search"
           ref={searchInput}
@@ -38,6 +39,7 @@ export function Search({ onSearch }: SearchFormProps) {
         />
         <button type="submit">Search</button>
       </form>
+      <ThemeSwitcher />
     </div>
   );
 }

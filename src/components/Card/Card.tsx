@@ -1,4 +1,7 @@
 import { ResultItem } from '../../models/ResultItem.model';
+import { Checkbox } from '../Checkbox/Checkbox';
+import { useTheme } from '../../hooks/useTheme';
+import { ThemeEnum } from '../../models/Theme.enum';
 
 type CardProps = {
   character: ResultItem;
@@ -9,9 +12,17 @@ type CardProps = {
 };
 
 export const Card = ({ character, onClick }: CardProps) => {
+  const { theme } = useTheme();
+
   return (
-    <button onClick={(event) => onClick(event, character)}>
-      <p>{character.name}</p>
-    </button>
+    <>
+      <Checkbox character={character} />
+      <button
+        className={`flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
+        onClick={(event) => onClick(event, character)}
+      >
+        <p>{character.name}</p>
+      </button>
+    </>
   );
 };

@@ -1,45 +1,38 @@
 import { ResultItem } from '../../models/ResultItem.model';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
-import { swapiService } from '../../services/swapiService';
+import { useEffect, useState } from 'react';
 import { Loader } from '../Loader/Loader';
+import { useGetCharacterDetailsQuery } from '../../api/swApi';
+import { useTheme } from '../../hooks/useTheme';
+import { ThemeEnum } from '../../models/Theme.enum';
 
 export const Details = () => {
+  const { theme } = useTheme();
+  const { itemId = '' } = useParams();
   const navigate = useNavigate();
   const [selectedCharacter, setSelectedCharacter] = useState<ResultItem | null>(
     null
   );
-  const [loading, setLoading] = useState(false);
-  const [innerErrorMessage, setInnerErrorMessage] = useState('');
-
-  const { itemId } = useParams();
-  const loadData = useCallback(async (itemId: string) => {
-    setLoading(true);
-
-    try {
-      const character = (await swapiService.fetchCharacter(itemId)) || null;
-      setSelectedCharacter(character);
-      setLoading(false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : `${error}`;
-      setInnerErrorMessage(message);
-      setLoading(false);
-    }
-  }, []);
+  const { data, isLoading, isFetching, error } =
+    useGetCharacterDetailsQuery(itemId);
 
   useEffect(() => {
-    loadData(itemId || '');
-  }, [itemId, loadData]);
+    if (data) {
+      setSelectedCharacter(data);
+    }
+  }, [data]);
 
   const handleMainClick = () => {
     navigate('/');
   };
 
-  return loading ? (
+  return isLoading || isFetching ? (
     <Loader />
   ) : (
     (selectedCharacter && (
-      <div className={'details-container'}>
+      <div
+        className={`details-container flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
+      >
         <div>
           <h3>Name: {selectedCharacter.name}</h3>
           <p>Birth year: {selectedCharacter.birth_year}</p>
@@ -48,6 +41,6 @@ export const Details = () => {
           Close
         </button>
       </div>
-    )) || <p>{innerErrorMessage}</p>
+    )) || <p>{error instanceof Error ? error.message : `${error}`}</p>
   );
 };

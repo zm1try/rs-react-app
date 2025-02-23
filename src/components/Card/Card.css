@@ -1,6 +1,6 @@
 .card {
   display: grid;
   grid-template-columns: max-content auto;
-  gap: 10px;
+  gap: 1rem;
   align-items: baseline;
 }

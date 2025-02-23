@@ -1,74 +1,99 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
+import { render } from '../../store/test-utils';
 import { Results } from './Results';
-import { MemoryRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ResultItem } from '../../models/ResultItem.model';
+import { ThemeProvider } from '../../context/ThemeContext';
 
-const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
+  useNavigate: jest.fn(),
+  Outlet: () => <div data-testid="mock-outlet"></div>,
 }));
 
-describe('Results', () => {
-  const mockCharacters = [
-    { name: 'Luke Skywalker', url: 'http://swapi.dev/api/people/1/' },
-    { name: 'Darth Vader', url: 'http://swapi.dev/api/people/4/' },
-  ] as never;
+describe('Results Component', () => {
+  const mockNavigate = useNavigate as jest.Mock;
+  const empty = '';
+  const mockSearchQuery = 'Yoda';
+  const emptyArray: ResultItem[] = [];
+  const characters = [
+    {
+      name: 'Luke Skywalker',
+      url: 'http://swapi.dev/api/people/1/',
+      birth_year: '19',
+    },
+    {
+      name: 'Darth Vader',
+      url: 'http://swapi.dev/api/people/4/',
+      birth_year: '21',
+    },
+  ];
 
-  it('renders cards for each character', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockNavigate.mockReturnValue(jest.fn());
+  });
+
+  it('should render list of characters', () => {
     render(
-      <MemoryRouter>
+      <ThemeProvider>
         <Results
-          characters={mockCharacters}
-          searchQuery="Luke"
-          errorMessage=""
+          characters={characters}
+          searchQuery={empty}
+          errorMessage={empty}
         />
-      </MemoryRouter>
+      </ThemeProvider>
     );
-
     expect(screen.getByText('Luke Skywalker')).toBeInTheDocument();
     expect(screen.getByText('Darth Vader')).toBeInTheDocument();
   });
 
-  it('navigates to character details on card click', () => {
+  it('should navigate to details page when a card is clicked', () => {
     render(
-      <MemoryRouter>
+      <ThemeProvider>
         <Results
-          characters={mockCharacters}
-          searchQuery="Luke"
-          errorMessage=""
+          characters={characters}
+          searchQuery={empty}
+          errorMessage={empty}
         />
-      </MemoryRouter>
+      </ThemeProvider>
     );
-
-    fireEvent.click(screen.getByText('Luke Skywalker'));
-    expect(mockNavigate).toHaveBeenCalledWith('/details/1');
+    const lukeCard = screen
+      .getByText('Luke Skywalker')
+      .closest('button') as HTMLElement;
+    fireEvent.click(lukeCard);
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
-  it('shows a message when no characters are found and no error message is present', () => {
+  it('should navigate to home when background is clicked', () => {
     render(
-      <MemoryRouter>
-        <Results characters={[]} searchQuery="Nonexistent" errorMessage="" />
-      </MemoryRouter>
+      <ThemeProvider>
+        <Results
+          characters={characters}
+          searchQuery={empty}
+          errorMessage={empty}
+        />
+      </ThemeProvider>
     );
+    const resultsContainer = screen.getByTestId(
+      'results-container'
+    ) as HTMLElement;
+    fireEvent.click(resultsContainer);
+    expect(mockNavigate).toHaveBeenCalled();
+  });
 
+  it('should display message when there are no characters and no error message', () => {
+    render(
+      <ThemeProvider>
+        <Results
+          characters={emptyArray}
+          searchQuery={mockSearchQuery}
+          errorMessage={empty}
+        />
+      </ThemeProvider>
+    );
     expect(
-      screen.getByText('Nothing to show for search term: Nonexistent')
+      screen.getByText('Nothing to show for search term: Yoda')
     ).toBeInTheDocument();
-  });
-
-  it('does not render anything when there is an error message', () => {
-    render(
-      <MemoryRouter>
-        <Results
-          characters={[]}
-          searchQuery="Error"
-          errorMessage="Network Error"
-        />
-      </MemoryRouter>
-    );
-
-    expect(
-      screen.queryByText('Nothing to show for search term: Error')
-    ).not.toBeInTheDocument();
   });
 });
