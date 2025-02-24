@@ -7,21 +7,21 @@ import { swApi } from '../api/swApi';
 import React from 'react';
 
 interface RenderWithStoreOptions {
-  initialState?: null | object;
   store?: EnhancedStore;
 }
 
 export function render(
   ui: React.ReactElement,
   {
-    initialState,
     store = configureStore({
       reducer: {
         selectedCharacters: selectedCharactersReducer,
         savedItems: savedItemsSlice.reducer,
         [swApi.reducerPath]: swApi.reducer,
       },
-      preloadedState: initialState,
+      middleware: (getDefaultMiddleware) => {
+        return getDefaultMiddleware().concat(swApi.middleware);
+      },
     }),
     ...renderOptions
   }: RenderWithStoreOptions = {}
