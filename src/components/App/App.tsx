@@ -4,22 +4,30 @@ import { SearchApp } from '../SearchApp/SearchApp';
 import { NotFoundPage } from '../NotFoundPage/NotFoundPage';
 import { Details } from '../Details/Details';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <SearchApp />,
+      children: [
+        {
+          path: 'details/:itemId',
+          element: <Details />,
+        },
+      ],
+    },
+    {
+      path: '*',
+      element: <NotFoundPage />,
+    },
+  ],
   {
-    path: '/',
-    element: <SearchApp />,
-    children: [
-      {
-        path: 'details/:itemId',
-        element: <Details />,
-      },
-    ],
-  },
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
-]);
+    future: {
+      v7_relativeSplatPath: true,
+    },
+    basename: '/rs-react-app/',
+  }
+);
 
 export const App = () => {
   return <RouterProvider router={router} />;
