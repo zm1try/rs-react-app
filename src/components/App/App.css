@@ -19,25 +19,32 @@ button p {
   margin-top: 20px;
   padding: 20px 0;
   border-top: 1px solid #e0e0e0;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .pagination-container {
   display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.search-form {
+  display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .search-container {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .results-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-top: 2rem;
+  margin: 1rem 0;
 }
 
 .results-list {
@@ -46,11 +53,46 @@ button p {
   gap: 1rem;
   padding: 1rem;
   border-radius: 10px;
-  background: #213547;
+  border: 2px solid white;
+}
+
+.results-list__item {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 1rem;
+  align-items: center;
 }
 
 .details-container {
   padding: 1rem;
   border-radius: 10px;
-  background: #213547;
+  border: 2px solid white;
+}
+
+.flayout-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
+.theme-switcher {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  justify-content: center;
+}
+
+.theme-switcher label {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flex-text.dark {
+  color: #ff0000;
+}
+
+.flex-text.light {
+  color: #008cff;
 }

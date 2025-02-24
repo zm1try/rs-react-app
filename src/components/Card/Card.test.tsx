@@ -1,24 +1,46 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Card } from './Card';
+import { useTheme } from '../../hooks/useTheme';
+import { ThemeEnum } from '../../models/Theme.enum';
 import { ResultItem } from '../../models/ResultItem.model';
 
-describe('Card', () => {
-  const mockCharacter: ResultItem = {
-    name: 'John Doe',
-  } as never;
+jest.mock('../../hooks/useTheme');
+jest.mock('../Checkbox/Checkbox', () => ({
+  Checkbox: ({ character }: { character: ResultItem }) => (
+    <div>Checkbox for {character.name}</div>
+  ),
+}));
 
-  it('renders the character name', () => {
-    render(<Card character={mockCharacter} onClick={jest.fn()} />);
-    const nameElement = screen.getByText(mockCharacter.name);
-    expect(nameElement).toBeInTheDocument();
+describe('Card Component', () => {
+  const mockUseTheme = useTheme as jest.Mock;
+  const character = {
+    birth_year: '19BBY',
+    name: 'Luke Skywalker',
+    url: 'http://swapi.dev/api/people/1/',
+  };
+  const onClickMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseTheme.mockReturnValue({ theme: ThemeEnum.DARK });
   });
 
-  it('calls onClick when the button is clicked', () => {
-    const handleClick = jest.fn();
-    render(<Card character={mockCharacter} onClick={handleClick} />);
-    const buttonElement = screen.getByRole('button');
-    fireEvent.click(buttonElement);
-    expect(handleClick).toHaveBeenCalledTimes(1);
-    expect(handleClick).toHaveBeenCalledWith(expect.anything(), mockCharacter);
+  it('should render character name and checkbox', () => {
+    render(<Card character={character} onClick={onClickMock} />);
+    expect(screen.getByText('Luke Skywalker')).toBeInTheDocument();
+    expect(screen.getByText('Checkbox for Luke Skywalker')).toBeInTheDocument();
+  });
+
+  it('should apply dark theme class', () => {
+    render(<Card character={character} onClick={onClickMock} />);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('dark');
+  });
+
+  it('should call onClick when button is clicked', () => {
+    render(<Card character={character} onClick={onClickMock} />);
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+    expect(onClickMock).toHaveBeenCalledWith(expect.any(Object), character);
   });
 });

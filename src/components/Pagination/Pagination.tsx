@@ -1,5 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { ThemeEnum } from '../../models/Theme.enum';
+import { useTheme } from '../../hooks/useTheme';
 
 type PaginationProps = {
   currentPage: number;
@@ -13,7 +15,7 @@ export const Pagination = ({
   onNextPage,
 }: PaginationProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { theme } = useTheme();
   useEffect(() => {
     if (searchParams.get('page') !== currentPage.toString()) {
       setSearchParams({
@@ -24,7 +26,9 @@ export const Pagination = ({
   }, [searchParams, setSearchParams, currentPage]);
 
   return (
-    <div className="pagination-container">
+    <div
+      className={`pagination-container flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
+    >
       <button onClick={onPreviousPage} disabled={currentPage === 1}>
         Previous
       </button>

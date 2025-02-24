@@ -1,19 +1,23 @@
-import { type FC } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { ResultsProps } from '../../models/ResultsProps.model';
-import { ResultItem } from '../../models/ResultItem.model';
 import { Card } from '../Card/Card';
+import { ResultItem } from '../../models/ResultItem.model';
 
-export const Results: FC<ResultsProps> = ({
+type ResultsProps = {
+  characters: ResultItem[];
+  searchQuery: string;
+  errorMessage: string;
+};
+
+export function Results({
   characters,
   searchQuery,
   errorMessage,
-}) => {
+}: ResultsProps) {
   const navigate = useNavigate();
 
   const handleClickCard = (
     event: React.MouseEvent<HTMLButtonElement>,
-    character: ResultItem | null
+    character: ResultItem
   ) => {
     event.stopPropagation();
     const id = character?.url.split('/').filter(Boolean).pop() || '';
@@ -24,18 +28,25 @@ export const Results: FC<ResultsProps> = ({
     navigate(`/`);
   };
 
-  return characters && characters.length > 0 ? (
-    <div className={'results-container'} onClick={handleCloseCard}>
-      <div className={'results-list'}>
-        {characters?.map((character: ResultItem) => (
-          <div className={'results-list__item'} key={character.name}>
-            <Card character={character} onClick={handleClickCard} />
+  return (
+    <>
+      {characters?.length > 0 && (
+        <div
+          data-testid="results-container"
+          className={'results-container'}
+          onClick={handleCloseCard}
+        >
+          <div className={'results-list'}>
+            {characters?.map((character: ResultItem) => (
+              <div className={'results-list__item'} key={character.name}>
+                <Card character={character} onClick={handleClickCard} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <Outlet />
-    </div>
-  ) : (
-    !errorMessage && <p>Nothing to show for search term: {searchQuery}</p>
+          <Outlet></Outlet>
+        </div>
+      )}
+      {!errorMessage && <p>Nothing to show for search term: {searchQuery}</p>}
+    </>
   );
-};
+}

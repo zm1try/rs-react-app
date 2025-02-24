@@ -1,33 +1,37 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { render } from '../../store/test-utils';
 import { SearchApp } from './SearchApp';
-import * as useLocalStorage from '../../services/useLocalStorage';
+import { ThemeEnum } from '../../models/Theme.enum';
+import * as useTheme from '../../hooks/useTheme';
+import * as localStorageHook from '../../hooks/useLocalStorage';
 
-jest.mock('../../services/useLocalStorage');
-jest.mock('../../services/swapiService');
+const mockSetSearchParams = jest.fn();
+jest.mock('../../hooks/useTheme');
+jest.mock('../../hooks/useLocalStorage');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: () => ({ itemId: '1' }),
+  useSearchParams: () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    return [searchParams, mockSetSearchParams];
+  },
   useNavigate: () => jest.fn(),
+  Outlet: () => <div data-testid="mock-outlet"></div>,
 }));
 
-describe('SearchApp Component', () => {
-  const mockSaveSearchQuery = jest.fn();
-  const mockLoadSearchQuery = jest.fn();
-  const mockUseLocalStorage = useLocalStorage.useLocalStorage as jest.Mock;
-  mockUseLocalStorage.mockReturnValue({
-    loadSearchQuery: mockLoadSearchQuery,
-    saveSearchQuery: mockSaveSearchQuery,
-  });
-
+describe('SearchApp', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockLoadSearchQuery.mockReturnValue('');
+    jest.spyOn(useTheme, 'useTheme').mockReturnValue({
+      theme: ThemeEnum.DARK,
+      toggleTheme: jest.fn(),
+    });
+    jest.spyOn(localStorageHook, 'useLocalStorage').mockReturnValue({
+      loadSearchQuery: jest.fn().mockReturnValue(''),
+      saveSearchQuery: jest.fn(),
+    });
   });
 
-  it('renders without crashing', async () => {
+  it('renders without crashing', () => {
     render(<SearchApp />);
-    await waitFor(() => {
-      expect(screen.getByText(/swapi search/i)).toBeInTheDocument();
-    });
+    expect(screen.getByText(/swApi search/i)).toBeInTheDocument();
   });
 });
