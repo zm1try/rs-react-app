@@ -20,14 +20,6 @@ describe('Search', () => {
       query: {},
       replace: mockRouterReplace,
     });
-
-    Object.defineProperty(window, 'localStorage', {
-      value: {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-      },
-      writable: true,
-    });
   });
 
   it('renders the search input, submit button, and ThemeSwitcher', () => {
@@ -57,23 +49,5 @@ describe('Search', () => {
     fireEvent.click(submitButton);
 
     expect(onSearchMock).toHaveBeenCalledWith('new query');
-  });
-
-  it('updates localStorage when the search query changes', () => {
-    const { getByPlaceholderText, getByText } = render(
-      <Search onSearch={vi.fn()} />
-    );
-    const searchInput = getByPlaceholderText(
-      'Enter something to search'
-    ) as HTMLInputElement;
-    const submitButton = getByText('Search');
-
-    fireEvent.change(searchInput, { target: { value: 'new query' } });
-    fireEvent.click(submitButton);
-
-    expect(window.localStorage.setItem).toHaveBeenCalledWith(
-      'ls-searchQuery',
-      'new query'
-    );
   });
 });

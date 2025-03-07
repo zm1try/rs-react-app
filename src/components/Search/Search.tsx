@@ -13,27 +13,10 @@ function Search({ onSearch }: SearchFormProps) {
   const [searchQuery, saveSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedData = localStorage.getItem('ls-searchQuery');
-      if (storedData) {
-        setInputValue(storedData as string);
-        saveSearchQuery(storedData as string);
-        onSearch(storedData as string);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
     if (!router.query.search && inputValue) {
       setInputValue('');
     }
   }, [router.query.search]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('ls-searchQuery', searchQuery);
-    }
-  }, [searchQuery]);
 
   const [inputValue, setInputValue] = useState<string>(searchQuery);
 
