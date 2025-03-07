@@ -1,3 +1,3 @@
 export const Loader = () => {
-  return <p>Loading...</p>;
+  return <p className={'loading'}>Loading...</p>;
 };

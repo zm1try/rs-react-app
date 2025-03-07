@@ -1,46 +1,35 @@
-import { ResultItem } from '../../models/ResultItem.model';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Loader } from '../Loader/Loader';
-import { useGetCharacterDetailsQuery } from '../../api/swApi';
-import { useTheme } from '../../hooks/useTheme';
-import { ThemeEnum } from '../../models/Theme.enum';
+'use server';
+import { useRouter } from 'next/router';
+import { ResultItem } from '@/models/ResultItem.model';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { ThemeEnum } from '@/models/Theme.enum';
 
-export const Details = () => {
-  const { theme } = useTheme();
-  const { itemId = '' } = useParams();
-  const navigate = useNavigate();
-  const [selectedCharacter, setSelectedCharacter] = useState<ResultItem | null>(
-    null
-  );
-  const { data, isLoading, isFetching, error } =
-    useGetCharacterDetailsQuery(itemId);
-
-  useEffect(() => {
-    if (data) {
-      setSelectedCharacter(data);
-    }
-  }, [data]);
+export const Details = ({
+  characterDetails = null,
+}: {
+  characterDetails: ResultItem | null;
+}) => {
+  const router = useRouter();
+  const theme = useSelector((state: RootState) => state.theme.theme.state);
 
   const handleMainClick = () => {
-    navigate('/');
+    router.push('/');
   };
 
-  return isLoading || isFetching ? (
-    <Loader />
-  ) : (
-    (selectedCharacter && (
+  return (
+    characterDetails && (
       <div
         className={`details-container flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
       >
         <div>
-          <h3>Name: {selectedCharacter.name}</h3>
-          <p>Birth year: {selectedCharacter.birth_year}</p>
+          <h3>Name: {characterDetails.name}</h3>
+          <p>Birth year: {characterDetails.birth_year}</p>
         </div>
         <button type="button" onClick={handleMainClick}>
           Close
         </button>
       </div>
-    )) || <p>{error instanceof Error ? error.message : `${error}`}</p>
+    )
   );
 };

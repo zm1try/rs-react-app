@@ -15,7 +15,7 @@ export const FooterActions = ({
   onNextPage,
 }: FooterActionsProps) => {
   return (
-    <div className={'footer-actions'}>
+    <div className="footer-actions">
       {isPaginationVisible && (
         <Pagination
           currentPage={currentPage}

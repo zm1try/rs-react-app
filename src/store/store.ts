@@ -1,21 +1,24 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
 import selectedCharactersReducer from './selectedChatactersReducer';
-import { swApi } from '../api/swApi';
 import savedItemsSlice from './savedItems';
+import { createWrapper } from 'next-redux-wrapper';
+import { swApi } from '@/store/api/swApi';
+import themeToggle from '@/store/themeToggle';
 
-export const store = configureStore({
-  reducer: {
-    selectedCharacters: selectedCharactersReducer,
-    savedItems: savedItemsSlice.reducer,
-    [swApi.reducerPath]: swApi.reducer,
-  },
-  middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().concat(swApi.middleware);
-  },
-});
+export const makeStore = () =>
+  configureStore({
+    reducer: {
+      selectedCharacters: selectedCharactersReducer,
+      theme: themeToggle.reducer,
+      savedItems: savedItemsSlice.reducer,
+      [swApi.reducerPath]: swApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) => {
+      return getDefaultMiddleware().concat(swApi.middleware);
+    },
+  });
 
-setupListeners(store.dispatch);
+export const wrapper = createWrapper(makeStore, { debug: false });
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<ReturnType<typeof makeStore>['getState']>;
+export type AppDispatch = ReturnType<typeof makeStore>['dispatch'];

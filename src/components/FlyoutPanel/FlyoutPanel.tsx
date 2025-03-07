@@ -1,20 +1,19 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
-import { removeAllItems } from '../../store/savedItems';
-import { clearAllSelected } from '../../store/selectedChatactersReducer';
-import { formatToCsv } from '../../services/formatToCsv';
-import { ThemeEnum } from '../../models/Theme.enum';
-import { useTheme } from '../../hooks/useTheme';
+import { RootState } from '@/store/store';
+import { removeAllItems } from '@/store/savedItems';
+import { clearAllSelected } from '@/store/selectedChatactersReducer';
+import { formatToCsv } from '@/services/formatToCsv';
+import { ThemeEnum } from '@/models/Theme.enum';
 
 export const FlyoutPanel = () => {
   const dispatch = useDispatch();
-  const { theme } = useTheme();
   const selectedCharacters = useSelector(
     (state: RootState) => state.selectedCharacters.selected
   );
   const savedItems = useSelector(
     (state: RootState) => state.savedItems.characters
   );
+  const theme = useSelector((state: RootState) => state.theme.theme.state);
 
   const handleUnselectAll = () => {
     dispatch(clearAllSelected());
@@ -32,18 +31,16 @@ export const FlyoutPanel = () => {
 
   return (
     <>
-      {selectedCharacters?.length > 0 && (
-        <>
-          <div className="flayout-panel">
-            <div
-              className={`flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
-            >
-              {selectedCharacters.length} items are selected
-            </div>
-            <button onClick={handleUnselectAll}>Unselect all</button>
-            <button onClick={handleDownload}>Download</button>
+      {selectedCharacters.length > 0 && (
+        <div className="flyout-panel">
+          <div
+            className={`flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
+          >
+            {selectedCharacters.length} items are selected
           </div>
-        </>
+          <button onClick={handleUnselectAll}>Unselect all</button>
+          <button onClick={handleDownload}>Download</button>
+        </div>
       )}
     </>
   );
