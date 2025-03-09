@@ -1,32 +1,34 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { useNavigate } from 'react-router-dom';
-import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher/ThemeSwitcher';
+import { useRouter } from 'next/router';
 
 type SearchFormProps = {
   onSearch: (query: string) => void;
 };
 
-export function Search({ onSearch }: SearchFormProps) {
-  const navigate = useNavigate();
-  const searchInput = useRef<HTMLInputElement | null>(null);
-  const { loadSearchQuery, saveSearchQuery } =
-    useLocalStorage('ls-searchQuery');
+function Search({ onSearch }: SearchFormProps) {
+  const router = useRouter();
+
+  const [searchQuery, saveSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    const cachedValue = loadSearchQuery();
-    navigate('/');
-    if (cachedValue && searchInput.current) {
-      searchInput.current.value = cachedValue;
+    if (!router.query.search && inputValue) {
+      setInputValue('');
     }
-  }, [navigate, loadSearchQuery]);
+  }, [router.query.search]);
+
+  const [inputValue, setInputValue] = useState<string>(searchQuery);
+
+  const handleChange = (value: string) => {
+    setInputValue(value || '');
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const searchQuery = searchInput.current?.value?.trim() || '';
-    saveSearchQuery(searchQuery && searchQuery);
-    onSearch(searchQuery || '');
+    const currentSearchQuery = inputValue?.trim() || '';
+    saveSearchQuery(currentSearchQuery);
+    onSearch(currentSearchQuery);
   };
 
   return (
@@ -34,7 +36,8 @@ export function Search({ onSearch }: SearchFormProps) {
       <form title="form" className={'search-form'} onSubmit={handleSubmit}>
         <input
           type="search"
-          ref={searchInput}
+          value={inputValue}
+          onChange={(e) => handleChange(e.target.value)}
           placeholder="Enter something to search"
         />
         <button type="submit">Search</button>
@@ -43,3 +46,5 @@ export function Search({ onSearch }: SearchFormProps) {
     </div>
   );
 }
+
+export default Search;

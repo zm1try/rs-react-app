@@ -1,7 +1,7 @@
-import { useTheme } from '../../hooks/useTheme';
-import { ThemeEnum } from '../../models/Theme.enum';
+import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
-export const ThemeSwitcher = () => {
+export function ThemeSwitcher() {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -34,4 +34,4 @@ export const ThemeSwitcher = () => {
       </div>
     </>
   );
-};
+}

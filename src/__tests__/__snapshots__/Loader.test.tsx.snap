@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Loader > matches the snapshot 1`] = `
+<DocumentFragment>
+  <p
+    class="loading"
+  >
+    Loading...
+  </p>
+</DocumentFragment>
+`;

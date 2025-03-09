@@ -1,52 +1,57 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Card } from '../Card/Card';
-import { ResultItem } from '../../models/ResultItem.model';
+'use server';
+import { useRouter } from 'next/router';
+import Card from '../Card/Card';
+import { ResultItem } from '@/models/ResultItem.model';
+import { ReactNode } from 'react';
 
 type ResultsProps = {
   characters: ResultItem[];
   searchQuery: string;
   errorMessage: string;
+  children: ReactNode;
 };
 
-export function Results({
+export default function Results({
   characters,
   searchQuery,
   errorMessage,
+  children,
 }: ResultsProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
-  const handleClickCard = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    character: ResultItem
-  ) => {
-    event.stopPropagation();
+  const handleClickCard = async (character: ResultItem) => {
     const id = character?.url.split('/').filter(Boolean).pop() || '';
-    navigate(`/details/${id}`);
+    if (id) {
+      router.push({
+        pathname: '/details/[id]',
+        query: { id, page: 1, ...router.query },
+      });
+    }
   };
 
-  const handleCloseCard = () => {
-    navigate(`/`);
-  };
-
-  return (
-    <>
-      {characters?.length > 0 && (
-        <div
-          data-testid="results-container"
-          className={'results-container'}
-          onClick={handleCloseCard}
-        >
-          <div className={'results-list'}>
-            {characters?.map((character: ResultItem) => (
-              <div className={'results-list__item'} key={character.name}>
-                <Card character={character} onClick={handleClickCard} />
-              </div>
-            ))}
-          </div>
-          <Outlet></Outlet>
+  if (characters?.length > 0) {
+    return (
+      <div data-testid="results-container" className={'results-container'}>
+        <div className={'results-list'}>
+          {characters?.map((character: ResultItem) => (
+            <div className={'results-list__item'} key={character.name}>
+              <Card
+                character={character}
+                onClick={() => handleClickCard(character)}
+              />
+            </div>
+          ))}
         </div>
-      )}
-      {!errorMessage && <p>Nothing to show for search term: {searchQuery}</p>}
-    </>
-  );
+        {children}
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return <p>{errorMessage}</p>;
+  }
+
+  if (!characters.length && !errorMessage) {
+    return <p>Nothing to show for search term: {searchQuery}</p>;
+  }
 }

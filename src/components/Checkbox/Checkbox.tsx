@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { switchSelection } from '../../store/selectedChatactersReducer';
-import { RootState } from '../../store/store';
-import { ResultItem } from '../../models/ResultItem.model';
+import { switchSelection } from '@/store/selectedChatactersReducer';
+import { RootState } from '@/store/store';
+import { ResultItem } from '@/models/ResultItem.model';
 import { useEffect, useState } from 'react';
-import { addItem, removeItemByKey } from '../../store/savedItems';
+import { addItem, removeItemByKey } from '@/store/savedItems';
 
 export const Checkbox = ({ character }: { character: ResultItem }) => {
   const [characterKey, setCharacterKey] = useState('');

@@ -1,7 +1,7 @@
-import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ThemeEnum } from '../../models/Theme.enum';
-import { useTheme } from '../../hooks/useTheme';
+import { useRouter } from 'next/router';
+import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 type PaginationProps = {
   currentPage: number;
@@ -14,16 +14,22 @@ export const Pagination = ({
   onPreviousPage,
   onNextPage,
 }: PaginationProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
   const { theme } = useTheme();
+
   useEffect(() => {
-    if (searchParams.get('page') !== currentPage.toString()) {
-      setSearchParams({
-        ...Object.fromEntries(searchParams),
-        page: currentPage.toString(),
-      });
+    const page = parseInt(router.query.page as string) || 1;
+    if (page !== currentPage) {
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: { ...router.query, page: currentPage.toString() },
+        },
+        undefined,
+        { shallow: true }
+      );
     }
-  }, [searchParams, setSearchParams, currentPage]);
+  }, [router, currentPage]);
 
   return (
     <div
