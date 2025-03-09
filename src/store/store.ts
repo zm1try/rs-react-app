@@ -1,13 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import selectedCharactersReducer from './selectedChatactersReducer';
 import savedItemsSlice from './savedItems';
-import themeToggle from '@/store/themeToggle';
 
 export const makeStore = () =>
   configureStore({
     reducer: {
       selectedCharacters: selectedCharactersReducer,
-      theme: themeToggle.reducer,
       savedItems: savedItemsSlice.reducer,
     },
   });

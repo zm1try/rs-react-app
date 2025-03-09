@@ -1,93 +1,64 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
-import { ThemeEnum } from '@/models/Theme.enum';
 import Card from '@/components/Card/Card';
+import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
+import { ResultItem } from '@/models/ResultItem.model.ts';
 
-const mockStore = configureMockStore();
-const characterMock = {
-  id: '1',
-  name: 'Test Character',
-  status: 'Alive',
-  species: 'Human',
-  gender: 'Male',
-  origin: { name: 'Earth' },
-  location: { name: 'Earth' },
-  image: 'test_image.jpg',
-};
+vi.mock('@/hooks/useTheme.tsx', () => ({
+  useTheme: vi.fn(),
+}));
 
 vi.mock('../components/Checkbox/Checkbox', () => ({
-  __esModule: true,
-  Checkbox: () => <div data-testid="mock-checkbox"></div>,
+  Checkbox: ({ character }: { character: ResultItem }) => (
+    <div data-testid="checkbox">{character.name}</div>
+  ),
 }));
 
 describe('Card', () => {
-  it('renders correctly with dark theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.DARK } },
+  const mockCharacter = {
+    name: 'Luke Skywalker',
+    url: 'https://swapi.dev/api/people/1/',
+  } as ResultItem;
+
+  const mockOnClick = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (useTheme as vi.Mock).mockReturnValue({
+      theme: ThemeEnum.LIGHT,
     });
-
-    const handleClick = vi.fn();
-    const { getByText } = render(
-      <Provider store={store}>
-        <Card character={characterMock} onClick={handleClick} />
-      </Provider>
-    );
-
-    expect(getByText(characterMock.name)).toBeInTheDocument();
-    expect(document.querySelector('.card')).toHaveClass('dark');
   });
 
-  it('does not call onClick when the button is not clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const handleClick = vi.fn();
-    render(
-      <Provider store={store}>
-        <Card character={characterMock} onClick={handleClick} />
-      </Provider>
+  it('renders the Checkbox component with the correct character prop', () => {
+    const { getByTestId } = render(
+      <Card character={mockCharacter} onClick={mockOnClick} />
     );
 
-    expect(handleClick).not.toHaveBeenCalled();
+    const checkbox = getByTestId('checkbox');
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).toHaveTextContent('Luke Skywalker');
   });
 
-  it('renders the character name correctly', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const handleClick = vi.fn();
-    const { getByText } = render(
-      <Provider store={store}>
-        <Card character={characterMock} onClick={handleClick} />
-      </Provider>
+  it('applies the correct theme class based on the current theme', () => {
+    const { container } = render(
+      <Card character={mockCharacter} onClick={mockOnClick} />
     );
 
-    expect(getByText(characterMock.name)).toBeInTheDocument();
+    const card = container.querySelector('.card');
+    expect(card).toHaveClass('light');
   });
 
-  it('button has correct class based on theme', () => {
-    const themes = [ThemeEnum.LIGHT, ThemeEnum.DARK];
-    themes.forEach((theme) => {
-      const store = mockStore({
-        theme: { theme: { state: theme } },
-      });
-
-      const handleClick = vi.fn();
-      const { container } = render(
-        <Provider store={store}>
-          <Card character={characterMock} onClick={handleClick} />
-        </Provider>
-      );
-
-      const button = container.querySelector('.card-button');
-      expect(button).toHaveClass(`card-button`);
-      expect(container.querySelector('.card')).toHaveClass(
-        theme === ThemeEnum.DARK ? 'dark' : 'light'
-      );
+  it('updates the theme class when the theme changes', () => {
+    (useTheme as vi.Mock).mockReturnValueOnce({
+      theme: ThemeEnum.DARK,
     });
+
+    const { container } = render(
+      <Card character={mockCharacter} onClick={mockOnClick} />
+    );
+
+    const card = container.querySelector('.card');
+    expect(card).toHaveClass('dark');
   });
 });

@@ -1,18 +1,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 export const Pagination = () => {
   const router = useRouter();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
   const searchParams = useSearchParams();
-
-  // if (!searchParams.get('page')) {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   params.set('page', '1');
-  //   router.replace(`?${params.toString()}`);
-  // }
 
   const page = searchParams.get('page');
 

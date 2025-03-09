@@ -4,6 +4,7 @@ import { removeAllItems } from '@/store/savedItems';
 import { clearAllSelected } from '@/store/selectedChatactersReducer';
 import { formatToCsv } from '@/services/formatToCsv';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 export const FlyoutPanel = () => {
   const dispatch = useDispatch();
@@ -13,7 +14,7 @@ export const FlyoutPanel = () => {
   const savedItems = useSelector(
     (state: RootState) => state.savedItems.characters
   );
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   const handleUnselectAll = () => {
     dispatch(clearAllSelected());

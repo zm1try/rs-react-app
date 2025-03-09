@@ -1,8 +1,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ResultItem } from '@/models/ResultItem.model';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 export const Details = ({
   characterDetails = null,
@@ -11,7 +10,7 @@ export const Details = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   const handleGoToMain = () => {
     const params = new URLSearchParams(searchParams.toString());

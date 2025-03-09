@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import { ReactNode } from 'react';
 import StoreProvider from './StoreProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary/ErrorBoundary.tsx';
+import { ThemeProvider } from '@/context/ThemeContext.tsx';
 
 export const metadata = {
   title: 'My App',
@@ -13,9 +14,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <StoreProvider>
-          <ErrorBoundary>
-            <main className={'main-container'}>{children}</main>
-          </ErrorBoundary>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <main className={'main-container'}>{children}</main>
+            </ErrorBoundary>
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>

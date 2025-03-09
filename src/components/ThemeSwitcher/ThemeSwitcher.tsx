@@ -1,15 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { toggleTheme } from '@/store/themeToggle';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 export function ThemeSwitcher() {
-  const dispatch = useDispatch();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
-
-  const handleSwitch = () => {
-    dispatch(toggleTheme());
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <>
@@ -24,7 +17,7 @@ export function ThemeSwitcher() {
             name="dark"
             value={theme}
             checked={theme === ThemeEnum.DARK}
-            onChange={handleSwitch}
+            onChange={toggleTheme}
           />
         </label>
         <label htmlFor="light">
@@ -35,7 +28,7 @@ export function ThemeSwitcher() {
             name="light"
             value={theme}
             checked={theme === ThemeEnum.LIGHT}
-            onChange={handleSwitch}
+            onChange={toggleTheme}
           />
         </label>
       </div>

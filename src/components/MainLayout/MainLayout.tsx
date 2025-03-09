@@ -6,9 +6,8 @@ import { FooterActions } from '@/components/FooterActions/FooterActions';
 import { FlyoutPanel } from '@/components/FlyoutPanel/FlyoutPanel';
 import { ResultItem } from '@/models/ResultItem.model';
 import { Details } from '@/components/Details/Details';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 const MainLayout = ({
   characters,
   characterDetails = null,
@@ -18,7 +17,7 @@ const MainLayout = ({
   characterDetails?: ResultItem | null;
   withDetails: boolean;
 }) => {
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   if (!characters) {
     return <div>Not Found</div>;
