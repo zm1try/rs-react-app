@@ -1,23 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher/ThemeSwitcher';
-import { useRouter } from 'next/router';
+import { useSearchParams, useRouter } from 'next/navigation'; // Use App Router utilities
 
-type SearchFormProps = {
-  onSearch: (query: string) => void;
-};
-
-function Search({ onSearch }: SearchFormProps) {
+function Search() {
   const router = useRouter();
-
+  const searchParams = useSearchParams(); // Access query parameters
   const [searchQuery, saveSearchQuery] = useState<string>('');
-
-  useEffect(() => {
-    if (!router.query.search && inputValue) {
-      setInputValue('');
-    }
-  }, [router.query.search]);
-
   const [inputValue, setInputValue] = useState<string>(searchQuery);
 
   const handleChange = (value: string) => {
@@ -28,7 +17,15 @@ function Search({ onSearch }: SearchFormProps) {
     event.preventDefault();
     const currentSearchQuery = inputValue?.trim() || '';
     saveSearchQuery(currentSearchQuery);
-    onSearch(currentSearchQuery);
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (currentSearchQuery) {
+      params.set('search', currentSearchQuery);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    router.push(`?${params.toString()}`);
   };
 
   return (

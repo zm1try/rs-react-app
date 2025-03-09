@@ -1,48 +1,43 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
 
-type PaginationProps = {
-  currentPage: number;
-  onPreviousPage: () => void;
-  onNextPage: () => void;
-};
-
-export const Pagination = ({
-  currentPage,
-  onPreviousPage,
-  onNextPage,
-}: PaginationProps) => {
+export const Pagination = () => {
   const router = useRouter();
   const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const page = parseInt(router.query.page as string) || 1;
-    if (page !== currentPage) {
-      router.replace(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, page: currentPage.toString() },
-        },
-        undefined,
-        { shallow: true }
-      );
+  // if (!searchParams.get('page')) {
+  //   const params = new URLSearchParams(searchParams.toString());
+  //   params.set('page', '1');
+  //   router.replace(`?${params.toString()}`);
+  // }
+
+  const page = searchParams.get('page');
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (Number(page) !== newPage) {
+      params.set('page', newPage.toString());
+      router.push(`?${params.toString()}`);
     }
-  }, [router, currentPage]);
+  };
 
   return (
     <div
       className={`pagination-container flex-text ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}
     >
-      <button onClick={onPreviousPage} disabled={currentPage === 1}>
+      <button
+        onClick={() => handlePageChange(Number(page) - 1)}
+        disabled={!page || Number(page) === 1}
+      >
         Previous
       </button>
       <div>
-        <span>Page {currentPage}</span>
+        <span>Page {Number(page) || 1}</span>
       </div>
-      <button onClick={onNextPage}>Next</button>
+      <button onClick={() => handlePageChange(Number(page) + 1)}>Next</button>
     </div>
   );
 };

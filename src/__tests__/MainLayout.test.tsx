@@ -1,28 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureMockStore from 'redux-mock-store';
-import { useRouter, Router } from 'next/router';
 import { ThemeEnum } from '@/models/Theme.enum';
-import MainLayout from '@/components/MainLayout/MainLayout';
-import { ResultItem } from '@/models/ResultItem.model';
-
-vi.mock('next/router', () => ({
-  useRouter: vi.fn(),
-  Router: {
-    events: {
-      on: vi.fn(),
-      off: vi.fn(),
-    },
-  },
-}));
+import { ResultItem } from '@/models/ResultItem.model.ts';
+import MainLayout from '@/components/MainLayout/MainLayout.tsx';
 
 vi.mock('@/components/Search/Search', () => ({
-  default: ({ onSearch }: { onSearch: (query: string) => void }) => (
-    <button data-testid="search-button" onClick={() => onSearch('test-query')}>
-      Search
-    </button>
-  ),
+  default: () => <div data-testid="search">Search Component</div>,
 }));
 
 vi.mock('@/components/Results/Results', () => ({
@@ -45,22 +30,12 @@ vi.mock('@/components/Loader/Loader', () => ({
 
 vi.mock('@/components/FooterActions/FooterActions', () => ({
   FooterActions: ({
-    currentPage,
-    onPreviousPage,
-    onNextPage,
+    isPaginationVisible,
   }: {
-    currentPage: number;
-    onPreviousPage: () => void;
-    onNextPage: () => void;
+    isPaginationVisible: boolean;
   }) => (
     <div data-testid="footer-actions">
-      <button data-testid="previous-page" onClick={onPreviousPage}>
-        Previous
-      </button>
-      <button data-testid="next-page" onClick={onNextPage}>
-        Next
-      </button>
-      <span>Page {currentPage}</span>
+      {isPaginationVisible ? 'Pagination Visible' : 'Pagination Hidden'}
     </div>
   ),
 }));
@@ -80,20 +55,10 @@ vi.mock('@/components/Details/Details', () => ({
 const mockStore = configureMockStore();
 
 describe('MainLayout', () => {
-  let mockRouterPush: vi.Mock;
-
-  beforeEach(() => {
-    mockRouterPush = vi.fn();
-    (useRouter as vi.Mock).mockReturnValue({
-      query: { page: '1' },
-      pathname: '/test',
-      push: mockRouterPush,
-      replace: vi.fn(),
-    });
-
-    Router.events.on.mockClear();
-    Router.events.off.mockClear();
-  });
+  const mockCharacters = [
+    { name: 'Character 1' },
+    { name: 'Character 2' },
+  ] as ResultItem[];
 
   it('renders the header with the correct theme', () => {
     const store = mockStore({
@@ -110,7 +75,7 @@ describe('MainLayout', () => {
     expect(header).toHaveClass('dark');
   });
 
-  it('renders the Loader when isLoading is true', async () => {
+  it('renders the Search component', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
@@ -121,89 +86,79 @@ describe('MainLayout', () => {
       </Provider>
     );
 
-    Router.events.on.mock.calls[0][1]();
-    await waitFor(() => expect(getByTestId('loader')).toBeInTheDocument());
+    expect(getByTestId('search')).toBeInTheDocument();
   });
 
-  it('renders Results when isLoading is false', async () => {
+  it('renders the Results component with the correct props', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
     const { getByTestId } = render(
       <Provider store={store}>
-        <MainLayout
-          characters={[{ name: 'Character 1' }]}
-          withDetails={false}
-        />
+        <MainLayout characters={mockCharacters} withDetails={false} error="" />
       </Provider>
     );
 
-    Router.events.on.mock.calls[1][1]();
-    await waitFor(() =>
-      expect(getByTestId('results')).toHaveTextContent('Results Found')
-    );
+    const results = getByTestId('results');
+    expect(results).toHaveTextContent('Results Found');
   });
 
-  it('handles search queries correctly', () => {
+  it('does not render the Details component when withDetails is false', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
-    const { getByTestId } = render(
+    const { queryByTestId } = render(
       <Provider store={store}>
-        <MainLayout characters={[]} withDetails={false} />
+        <MainLayout characters={mockCharacters} withDetails={false} />
       </Provider>
     );
 
-    const searchButton = getByTestId('search-button');
-    fireEvent.click(searchButton);
-
-    expect(mockRouterPush).toHaveBeenCalledWith({
-      query: { page: 1, search: 'test-query' },
-    });
+    expect(queryByTestId('details')).toBeNull();
   });
 
-  it('handles pagination correctly', () => {
+  it('renders the FlyoutPanel component', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
     const { getByTestId } = render(
       <Provider store={store}>
-        <MainLayout
-          characters={[{ name: 'Character 1' }]}
-          withDetails={false}
-        />
-      </Provider>
-    );
-
-    const nextPageButton = getByTestId('next-page');
-    fireEvent.click(nextPageButton);
-
-    expect(mockRouterPush).toHaveBeenCalledWith({ query: { page: 2 } });
-
-    const previousPageButton = getByTestId('previous-page');
-    fireEvent.click(previousPageButton);
-
-    expect(mockRouterPush).toHaveBeenCalledWith({ query: { page: 0 } });
-  });
-
-  it('renders FlyoutPanel and FooterActions', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const { getByTestId } = render(
-      <Provider store={store}>
-        <MainLayout
-          characters={[{ name: 'Character 1' }]}
-          withDetails={false}
-        />
+        <MainLayout characters={mockCharacters} withDetails={false} />
       </Provider>
     );
 
     expect(getByTestId('flyout-panel')).toBeInTheDocument();
-    expect(getByTestId('footer-actions')).toBeInTheDocument();
+  });
+
+  it('renders the FooterActions component with the correct isPaginationVisible prop', () => {
+    const store = mockStore({
+      theme: { theme: { state: ThemeEnum.LIGHT } },
+    });
+
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <MainLayout characters={mockCharacters} withDetails={false} />
+      </Provider>
+    );
+
+    const footerActions = getByTestId('footer-actions');
+    expect(footerActions).toHaveTextContent('Pagination Visible');
+  });
+
+  it('hides pagination when there are no characters', () => {
+    const store = mockStore({
+      theme: { theme: { state: ThemeEnum.LIGHT } },
+    });
+
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <MainLayout characters={[]} withDetails={false} />
+      </Provider>
+    );
+
+    const footerActions = getByTestId('footer-actions');
+    expect(footerActions).toHaveTextContent('Pagination Hidden');
   });
 });
