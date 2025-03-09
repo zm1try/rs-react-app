@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import { Component, ErrorInfo } from 'react';
 import { ErrorBoundaryProps } from '@/models/ErrorBoundaryProps.model';
 
 type ErrorBoundaryState = {
@@ -6,7 +7,7 @@ type ErrorBoundaryState = {
   error: Error | null;
 };
 
-export class ErrorBoundary extends React.Component<
+export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
@@ -19,7 +20,7 @@ export class ErrorBoundary extends React.Component<
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error', error, errorInfo);
   }
 

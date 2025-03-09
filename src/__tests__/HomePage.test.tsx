@@ -1,26 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
-import HomePage, { getServerSideProps } from '../pages/index';
-import { makeStore } from '@/store/store';
-import { swApi } from '@/store/api/swApi';
-import MainLayout from '@/components/MainLayout/MainLayout';
+import { render, screen } from '@testing-library/react';
+import { swapiService } from '@/api/swapiService';
+import { ResultItem } from '@/models/ResultItem.model.ts';
+import HomePage from '@/app/page.tsx';
 
-vi.mock('@/store/store', () => ({
-  makeStore: vi.fn(),
-}));
-
-vi.mock('@/store/api/swApi', () => ({
-  swApi: {
-    endpoints: {
-      getCharacters: {
-        initiate: vi.fn(),
-      },
-    },
+vi.mock('@/api/swapiService', () => ({
+  swapiService: {
+    fetchCharacters: vi.fn(),
   },
 }));
 
+vi.mock('@/components/InitialLoader/InitialLoader', () => ({
+  InitialLoader: () => <div data-testid="initial-loader">Loading...</div>,
+}));
+
 vi.mock('@/components/MainLayout/MainLayout', () => ({
-  default: vi.fn(() => <div data-testid="main-layout">MainLayout</div>),
+  default: ({ characters }: { characters: ResultItem[] }) => (
+    <div data-testid="main-layout">
+      {characters.map((character) => (
+        <div key={character.name}>{character.name}</div>
+      ))}
+    </div>
+  ),
 }));
 
 describe('HomePage', () => {
@@ -28,57 +29,44 @@ describe('HomePage', () => {
     vi.clearAllMocks();
   });
 
-  describe('getServerSideProps', () => {
-    it('returns notFound when data is missing', async () => {
-      const mockDispatch = vi.fn();
-      const mockStore = { dispatch: mockDispatch };
-      (makeStore as vi.Mock).mockReturnValue(mockStore);
+  it('fetches character data and renders MainLayout when page query parameter is provided', async () => {
+    const mockCharacters = [{ name: 'Character 1' }, { name: 'Character 2' }];
+    (swapiService.fetchCharacters as vi.Mock).mockResolvedValue({
+      characters: mockCharacters,
+    });
 
-      (swApi.endpoints.getCharacters.initiate as vi.Mock).mockResolvedValue({
-        data: null,
-      });
+    const searchParams = { page: '1', search: '' };
 
-      const context = {
-        query: { page: '1', search: 'test' },
-      };
+    render(await HomePage({ searchParams }));
 
-      const result = await getServerSideProps(context);
-
-      expect(result).toEqual({
-        notFound: true,
-      });
+    const mainLayout = screen.getByTestId('main-layout');
+    expect(mainLayout).toBeInTheDocument();
+    expect(mainLayout).toHaveTextContent('Character 1');
+    expect(mainLayout).toHaveTextContent('Character 2');
+    expect(swapiService.fetchCharacters).toHaveBeenCalledWith({
+      page: 1,
+      searchQuery: '',
     });
   });
 
-  describe('HomePage component', () => {
-    it('renders MainLayout with the correct props', () => {
-      const mockCharacters = [{ name: 'Character 1' }];
+  it('renders "Not Found" when no data is returned', async () => {
+    (swapiService.fetchCharacters as vi.Mock).mockResolvedValue(null);
 
-      const { getByTestId } = render(
-        <HomePage characters={mockCharacters} characterDetails={null} />
-      );
+    const searchParams = { page: '1', search: '' };
 
-      expect(getByTestId('main-layout')).toBeInTheDocument();
-      expect(MainLayout).toHaveBeenCalledWith(
-        {
-          characters: mockCharacters,
-          characterDetails: null,
-          withDetails: false,
-        },
-        {}
-      );
-    });
+    render(await HomePage({ searchParams }));
 
-    it('renders MainLayout with an error prop', () => {
-      const { getByTestId } = render(
-        <HomePage
-          characters={[]}
-          characterDetails={null}
-          error="Something went wrong"
-        />
-      );
+    expect(screen.getByText('Not Found')).toBeInTheDocument();
+  });
 
-      expect(getByTestId('main-layout')).toBeInTheDocument();
-    });
+  it('renders InitialLoader when page query parameter is missing', async () => {
+    const searchParams = { page: undefined, search: '' };
+
+    render(await HomePage({ searchParams }));
+
+    expect(screen.getByTestId('initial-loader')).toBeInTheDocument();
+    expect(screen.getByTestId('initial-loader')).toHaveTextContent(
+      'Loading...'
+    );
   });
 });

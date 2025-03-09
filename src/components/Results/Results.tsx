@@ -1,5 +1,4 @@
-'use server';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Card from '../Card/Card';
 import { ResultItem } from '@/models/ResultItem.model';
 import { ReactNode } from 'react';
@@ -7,25 +6,23 @@ import { ReactNode } from 'react';
 type ResultsProps = {
   characters: ResultItem[];
   searchQuery: string;
-  errorMessage: string;
   children: ReactNode;
 };
 
 export default function Results({
   characters,
   searchQuery,
-  errorMessage,
   children,
 }: ResultsProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleClickCard = async (character: ResultItem) => {
+  const handleClickCard = (character: ResultItem) => {
     const id = character?.url.split('/').filter(Boolean).pop() || '';
     if (id) {
-      router.push({
-        pathname: '/details/[id]',
-        query: { id, page: 1, ...router.query },
-      });
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      router.push(`/details/${id}?${params.toString()}`);
     }
   };
 
@@ -33,7 +30,7 @@ export default function Results({
     return (
       <div data-testid="results-container" className={'results-container'}>
         <div className={'results-list'}>
-          {characters?.map((character: ResultItem) => (
+          {characters.map((character: ResultItem) => (
             <div className={'results-list__item'} key={character.name}>
               <Card
                 character={character}
@@ -47,11 +44,9 @@ export default function Results({
     );
   }
 
-  if (errorMessage) {
-    return <p>{errorMessage}</p>;
-  }
-
-  if (!characters.length && !errorMessage) {
+  if (!characters.length) {
     return <p>Nothing to show for search term: {searchQuery}</p>;
   }
+
+  return null;
 }

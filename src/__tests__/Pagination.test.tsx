@@ -2,82 +2,75 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureMockStore from 'redux-mock-store';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ThemeEnum } from '@/models/Theme.enum';
 import { Pagination } from '@/components/Pagination/Pagination.tsx';
 
-vi.mock('next/router', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
+  useSearchParams: vi.fn(),
 }));
 
 const mockStore = configureMockStore();
 
 describe('Pagination', () => {
-  let mockReplace: vi.Mock;
+  let mockRouterPush: vi.Mock;
+  let mockRouterReplace: vi.Mock;
 
   beforeEach(() => {
-    mockReplace = vi.fn();
+    mockRouterPush = vi.fn();
+    mockRouterReplace = vi.fn();
     (useRouter as vi.Mock).mockReturnValue({
-      query: { page: '1' },
-      pathname: '/test',
-      replace: mockReplace,
+      push: mockRouterPush,
+      replace: mockRouterReplace,
+    });
+    (useSearchParams as vi.Mock).mockReturnValue({
+      get: vi.fn((key: string) => (key === 'page' ? '1' : null)),
+      toString: vi.fn(() => ''),
     });
   });
 
-  it('renders correctly with light theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    expect(getByText('Page 1')).toBeInTheDocument();
-    expect(container.querySelector('.pagination-container')).toHaveClass(
-      'light'
-    );
-  });
-
-  it('renders correctly with dark theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.DARK } },
-    });
-
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    expect(getByText('Page 1')).toBeInTheDocument();
-    expect(container.querySelector('.pagination-container')).toHaveClass(
-      'dark'
-    );
-  });
-
-  it('disables the "Previous" button when on the first page', () => {
+  it('renders the pagination buttons and current page', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
     const { getByText } = render(
       <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
+        <Pagination />
+      </Provider>
+    );
+
+    expect(getByText('Previous')).toBeInTheDocument();
+    expect(getByText('Next')).toBeInTheDocument();
+    expect(getByText('Page 1')).toBeInTheDocument();
+  });
+
+  it('applies the correct theme class based on Redux state', () => {
+    const store = mockStore({
+      theme: { theme: { state: ThemeEnum.DARK } },
+    });
+
+    const { container } = render(
+      <Provider store={store}>
+        <Pagination />
+      </Provider>
+    );
+
+    const paginationContainer = container.querySelector(
+      '.pagination-container'
+    );
+    expect(paginationContainer).toHaveClass('dark');
+  });
+
+  it('disables the "Previous" button on the first page', () => {
+    const store = mockStore({
+      theme: { theme: { state: ThemeEnum.LIGHT } },
+    });
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <Pagination />
       </Provider>
     );
 
@@ -85,117 +78,69 @@ describe('Pagination', () => {
     expect(previousButton).toBeDisabled();
   });
 
-  it('enables the "Previous" button when not on the first page', () => {
+  it('navigates to the next page when "Next" button is clicked', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
-    const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    const previousButton = getByText('Previous');
-    expect(previousButton).not.toBeDisabled();
-  });
-
-  it('calls onPreviousPage when the "Previous" button is clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
+    (useSearchParams as vi.Mock).mockReturnValue({
+      get: vi.fn((key: string) => (key === 'page' ? '1' : null)),
+      toString: vi.fn(() => ''),
     });
 
-    const onPreviousPageMock = vi.fn();
-
     const { getByText } = render(
       <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={onPreviousPageMock}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    const previousButton = getByText('Previous');
-    fireEvent.click(previousButton);
-
-    expect(onPreviousPageMock).toHaveBeenCalled();
-  });
-
-  it('calls onNextPage when the "Next" button is clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const onNextPageMock = vi.fn();
-
-    const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={onNextPageMock}
-        />
+        <Pagination />
       </Provider>
     );
 
     const nextButton = getByText('Next');
     fireEvent.click(nextButton);
 
-    expect(onNextPageMock).toHaveBeenCalled();
+    expect(mockRouterPush).toHaveBeenCalledWith('?page=2');
   });
 
-  it('updates the router query when the currentPage changes', () => {
+  it('navigates to the previous page when "Previous" button is clicked', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
-    render(
+    (useSearchParams as vi.Mock).mockReturnValue({
+      get: vi.fn((key: string) => (key === 'page' ? '2' : null)),
+      toString: vi.fn(() => ''),
+    });
+
+    const { getByText } = render(
       <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
+        <Pagination />
       </Provider>
     );
 
-    expect(mockReplace).toHaveBeenCalledWith(
-      {
-        pathname: '/test',
-        query: { page: '2' },
-      },
-      undefined,
-      { shallow: true }
-    );
+    const previousButton = getByText('Previous');
+    fireEvent.click(previousButton);
+
+    expect(mockRouterPush).toHaveBeenCalledWith('?page=1');
   });
 
-  it('does not update the router query if the page is already correct', () => {
+  it('does not navigate if the current page is the same as the new page', () => {
     const store = mockStore({
       theme: { theme: { state: ThemeEnum.LIGHT } },
     });
 
-    (useRouter as vi.Mock).mockReturnValue({
-      query: { page: '2' },
-      pathname: '/test',
-      replace: mockReplace,
+    (useSearchParams as vi.Mock).mockReturnValue({
+      get: vi.fn((key: string) => (key === 'page' ? '2' : null)),
+      toString: vi.fn(() => ''),
     });
 
-    render(
+    const { getByText } = render(
       <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
+        <Pagination />
       </Provider>
     );
 
-    expect(mockReplace).not.toHaveBeenCalled();
+    const nextButton = getByText('Next');
+    fireEvent.click(nextButton);
+
+    expect(mockRouterPush).not.toHaveBeenCalledWith('?page=2');
   });
 });
