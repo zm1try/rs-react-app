@@ -3,6 +3,7 @@ import { wrapper } from '../store/store';
 import '../../src/styles/globals.css';
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary';
 import { Provider } from 'react-redux';
+import { ThemeProvider } from '@/context/ThemeContext.tsx';
 
 function App({ Component, ...rest }: AppProps) {
   const { store, props } = wrapper.useWrappedStore(rest);
@@ -10,7 +11,9 @@ function App({ Component, ...rest }: AppProps) {
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <Component {...pageProps} />
+        <ThemeProvider>
+          <Component {...pageProps} />
+        </ThemeProvider>
       </Provider>
     </ErrorBoundary>
   );

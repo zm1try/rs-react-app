@@ -1,120 +1,82 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
 import { useRouter } from 'next/router';
-import { ThemeEnum } from '@/models/Theme.enum.ts';
+import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 import { Details } from '@/components/Details/Details.tsx';
 
 vi.mock('next/router', () => ({
   useRouter: vi.fn(),
 }));
 
-const mockStore = configureMockStore();
-const characterDetailsMock = {
-  id: '1',
-  name: 'Test Character',
-  birth_year: '19BBY',
-  status: 'Alive',
-  species: 'Human',
-  gender: 'Male',
-  origin: { name: 'Earth' },
-  location: { name: 'Earth' },
-  image: 'test_image.jpg',
-};
+vi.mock('@/hooks/useTheme.tsx', () => ({
+  useTheme: vi.fn(),
+}));
 
 describe('Details', () => {
-  let mockPush: vi.Mock;
+  let mockRouterPush: vi.Mock;
 
   beforeEach(() => {
-    mockPush = vi.fn();
-    (useRouter as vi.Mock).mockReturnValue({ push: mockPush });
+    mockRouterPush = vi.fn();
+    (useRouter as vi.Mock).mockReturnValue({
+      push: mockRouterPush,
+    });
+    (useTheme as vi.Mock).mockReturnValue({
+      theme: ThemeEnum.LIGHT,
+    });
   });
 
-  it('renders correctly with light theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
+  const characterDetailsMock = {
+    name: 'Luke Skywalker',
+    birth_year: '19BBY',
+    url: 'https://swapi.dev/api/people/1/',
+  };
 
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Details characterDetails={characterDetailsMock} />
-      </Provider>
+  it('renders character details when characterDetails is provided', () => {
+    const { getByText } = render(
+      <Details characterDetails={characterDetailsMock} />
     );
 
-    expect(getByText(`Name: ${characterDetailsMock.name}`)).toBeInTheDocument();
-    expect(
-      getByText(`Birth year: ${characterDetailsMock.birth_year}`)
-    ).toBeInTheDocument();
-    expect(container.querySelector('.details-container')).toHaveClass('light');
+    expect(getByText('Name: Luke Skywalker')).toBeInTheDocument();
+    expect(getByText('Birth year: 19BBY')).toBeInTheDocument();
   });
 
-  it('renders correctly with dark theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.DARK } },
-    });
-
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Details characterDetails={characterDetailsMock} />
-      </Provider>
+  it('applies the correct theme class based on the current theme', () => {
+    const { container } = render(
+      <Details characterDetails={characterDetailsMock} />
     );
 
-    expect(getByText(`Name: ${characterDetailsMock.name}`)).toBeInTheDocument();
-    expect(
-      getByText(`Birth year: ${characterDetailsMock.birth_year}`)
-    ).toBeInTheDocument();
-    expect(container.querySelector('.details-container')).toHaveClass('dark');
+    const detailsContainer = container.querySelector('.details-container');
+    expect(detailsContainer).toHaveClass('light');
   });
 
-  it('does not render if characterDetails is null', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
+  it('updates the theme class when the theme changes', () => {
+    (useTheme as vi.Mock).mockReturnValueOnce({
+      theme: ThemeEnum.DARK,
     });
 
     const { container } = render(
-      <Provider store={store}>
-        <Details characterDetails={null} />
-      </Provider>
+      <Details characterDetails={characterDetailsMock} />
     );
 
-    expect(container.firstChild).toBeNull();
+    const detailsContainer = container.querySelector('.details-container');
+    expect(detailsContainer).toHaveClass('dark');
   });
 
-  it('navigates to the main page when the Close button is clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
+  it('navigates to the main page when the "Close" button is clicked', () => {
     const { getByText } = render(
-      <Provider store={store}>
-        <Details characterDetails={characterDetailsMock} />
-      </Provider>
+      <Details characterDetails={characterDetailsMock} />
     );
 
     const closeButton = getByText('Close');
     fireEvent.click(closeButton);
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockRouterPush).toHaveBeenCalledWith('/');
   });
 
-  it('renders with the correct theme class based on Redux state', () => {
-    const themes = [ThemeEnum.LIGHT, ThemeEnum.DARK];
-    themes.forEach((theme) => {
-      const store = mockStore({
-        theme: { theme: { state: theme } },
-      });
+  it('does not render anything when characterDetails is null', () => {
+    const { container } = render(<Details characterDetails={null} />);
 
-      const { container } = render(
-        <Provider store={store}>
-          <Details characterDetails={characterDetailsMock} />
-        </Provider>
-      );
-
-      const detailsContainer = container.querySelector('.details-container');
-      expect(detailsContainer).toHaveClass(
-        theme === ThemeEnum.DARK ? 'dark' : 'light'
-      );
-    });
+    expect(container.firstChild).toBeNull();
   });
 });

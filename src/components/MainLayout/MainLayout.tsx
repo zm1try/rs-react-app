@@ -7,9 +7,8 @@ import { FooterActions } from '@/components/FooterActions/FooterActions';
 import { FlyoutPanel } from '@/components/FlyoutPanel/FlyoutPanel';
 import { ResultItem } from '@/models/ResultItem.model';
 import { Details } from '@/components/Details/Details';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 const MainLayout = ({
   characters,
@@ -24,7 +23,7 @@ const MainLayout = ({
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
   const { page } = router.query;
   const currentPage = Number(page) || 1;
 
@@ -65,7 +64,7 @@ const MainLayout = ({
 
   const handlePageChange = (newPage: number) => {
     const query: { page: number; search?: string } = { page: newPage };
-    router.push({ query });
+    router.push({ pathname: '/', query });
   };
 
   const isPaginationVisible = characters && characters.length > 0;

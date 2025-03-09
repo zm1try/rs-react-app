@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { Pagination } from '../components/Pagination/Pagination';
-// import { ThrowErrorButton } from '../ThrowErrorButton/ThrowErrorButton';
 import { FooterActions } from '@/components/FooterActions/FooterActions.tsx';
 
 vi.mock('../components/Pagination/Pagination', () => ({

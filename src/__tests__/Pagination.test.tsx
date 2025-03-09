@@ -1,201 +1,162 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
 import { useRouter } from 'next/router';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 import { Pagination } from '@/components/Pagination/Pagination.tsx';
+import { NextParsedUrlQuery } from 'next/dist/server/request-meta';
 
 vi.mock('next/router', () => ({
   useRouter: vi.fn(),
 }));
 
-const mockStore = configureMockStore();
+vi.mock('@/hooks/useTheme.tsx', () => ({
+  useTheme: vi.fn(),
+}));
 
 describe('Pagination', () => {
-  let mockReplace: vi.Mock;
+  let mockRouterReplace: vi.Mock;
+  let mockRouterQuery: NextParsedUrlQuery;
 
   beforeEach(() => {
-    mockReplace = vi.fn();
+    mockRouterReplace = vi.fn();
+    mockRouterQuery = { page: '1' };
+
     (useRouter as vi.Mock).mockReturnValue({
-      query: { page: '1' },
       pathname: '/test',
-      replace: mockReplace,
+      query: mockRouterQuery,
+      replace: mockRouterReplace,
+    });
+
+    (useTheme as vi.Mock).mockReturnValue({
+      theme: ThemeEnum.LIGHT,
     });
   });
 
-  it('renders correctly with light theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
+  const mockOnPreviousPage = vi.fn();
+  const mockOnNextPage = vi.fn();
 
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    expect(getByText('Page 1')).toBeInTheDocument();
-    expect(container.querySelector('.pagination-container')).toHaveClass(
-      'light'
-    );
-  });
-
-  it('renders correctly with dark theme', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.DARK } },
-    });
-
-    const { getByText, container } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    expect(getByText('Page 1')).toBeInTheDocument();
-    expect(container.querySelector('.pagination-container')).toHaveClass(
-      'dark'
-    );
-  });
-
-  it('disables the "Previous" button when on the first page', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
+  it('renders the pagination buttons and current page', () => {
     const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
+      <Pagination
+        currentPage={1}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
+    );
+
+    expect(getByText('Previous')).toBeInTheDocument();
+    expect(getByText('Next')).toBeInTheDocument();
+    expect(getByText('Page 1')).toBeInTheDocument();
+  });
+
+  it('applies the correct theme class based on the current theme', () => {
+    const { container } = render(
+      <Pagination
+        currentPage={1}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
+    );
+
+    const paginationContainer = container.querySelector(
+      '.pagination-container'
+    );
+    expect(paginationContainer).toHaveClass('light');
+  });
+
+  it('updates the theme class when the theme changes', () => {
+    (useTheme as vi.Mock).mockReturnValueOnce({
+      theme: ThemeEnum.DARK,
+    });
+
+    const { container } = render(
+      <Pagination
+        currentPage={1}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
+    );
+
+    const paginationContainer = container.querySelector(
+      '.pagination-container'
+    );
+    expect(paginationContainer).toHaveClass('dark');
+  });
+
+  it('disables the "Previous" button on the first page', () => {
+    const { getByText } = render(
+      <Pagination
+        currentPage={1}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
     );
 
     const previousButton = getByText('Previous');
     expect(previousButton).toBeDisabled();
   });
 
-  it('enables the "Previous" button when not on the first page', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
-    );
-
-    const previousButton = getByText('Previous');
-    expect(previousButton).not.toBeDisabled();
-  });
-
   it('calls onPreviousPage when the "Previous" button is clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const onPreviousPageMock = vi.fn();
-
     const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={onPreviousPageMock}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
+      <Pagination
+        currentPage={2}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
     );
 
     const previousButton = getByText('Previous');
     fireEvent.click(previousButton);
 
-    expect(onPreviousPageMock).toHaveBeenCalled();
+    expect(mockOnPreviousPage).toHaveBeenCalled();
   });
 
   it('calls onNextPage when the "Next" button is clicked', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    const onNextPageMock = vi.fn();
-
     const { getByText } = render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={1}
-          onPreviousPage={vi.fn()}
-          onNextPage={onNextPageMock}
-        />
-      </Provider>
+      <Pagination
+        currentPage={1}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
     );
 
     const nextButton = getByText('Next');
     fireEvent.click(nextButton);
 
-    expect(onNextPageMock).toHaveBeenCalled();
+    expect(mockOnNextPage).toHaveBeenCalled();
   });
 
-  it('updates the router query when the currentPage changes', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
+  it('updates the query parameters when currentPage changes', () => {
     render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
+      <Pagination
+        currentPage={2}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
     );
 
-    expect(mockReplace).toHaveBeenCalledWith(
+    expect(mockRouterReplace).toHaveBeenCalledWith(
       {
         pathname: '/test',
-        query: { page: '2' },
+        query: { ...mockRouterQuery, page: '2' },
       },
       undefined,
       { shallow: true }
     );
   });
 
-  it('does not update the router query if the page is already correct', () => {
-    const store = mockStore({
-      theme: { theme: { state: ThemeEnum.LIGHT } },
-    });
-
-    (useRouter as vi.Mock).mockReturnValue({
-      query: { page: '2' },
-      pathname: '/test',
-      replace: mockReplace,
-    });
+  it('does not update the query parameters if the page is already correct', () => {
+    mockRouterQuery.page = '2';
 
     render(
-      <Provider store={store}>
-        <Pagination
-          currentPage={2}
-          onPreviousPage={vi.fn()}
-          onNextPage={vi.fn()}
-        />
-      </Provider>
+      <Pagination
+        currentPage={2}
+        onPreviousPage={mockOnPreviousPage}
+        onNextPage={mockOnNextPage}
+      />
     );
 
-    expect(mockReplace).not.toHaveBeenCalled();
+    expect(mockRouterReplace).not.toHaveBeenCalled();
   });
 });

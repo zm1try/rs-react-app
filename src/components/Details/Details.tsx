@@ -1,9 +1,8 @@
 'use server';
 import { useRouter } from 'next/router';
 import { ResultItem } from '@/models/ResultItem.model';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 export const Details = ({
   characterDetails = null,
@@ -11,7 +10,7 @@ export const Details = ({
   characterDetails: ResultItem | null;
 }) => {
   const router = useRouter();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   const handleMainClick = () => {
     router.push('/');

@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 type PaginationProps = {
   currentPage: number;
@@ -16,7 +15,7 @@ export const Pagination = ({
   onNextPage,
 }: PaginationProps) => {
   const router = useRouter();
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const page = parseInt(router.query.page as string) || 1;

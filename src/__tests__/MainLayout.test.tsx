@@ -181,12 +181,18 @@ describe('MainLayout', () => {
     const nextPageButton = getByTestId('next-page');
     fireEvent.click(nextPageButton);
 
-    expect(mockRouterPush).toHaveBeenCalledWith({ query: { page: 2 } });
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      pathname: '/',
+      query: { page: 2 },
+    });
 
     const previousPageButton = getByTestId('previous-page');
     fireEvent.click(previousPageButton);
 
-    expect(mockRouterPush).toHaveBeenCalledWith({ query: { page: 0 } });
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      pathname: '/',
+      query: { page: 0 },
+    });
   });
 
   it('renders FlyoutPanel and FooterActions', () => {

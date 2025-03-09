@@ -1,8 +1,7 @@
 import { ResultItem } from '@/models/ResultItem.model';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { ThemeEnum } from '@/models/Theme.enum';
+import { useTheme } from '@/hooks/useTheme.tsx';
 
 type CardProps = {
   character: ResultItem;
@@ -13,7 +12,7 @@ type CardProps = {
 };
 
 const Card = ({ character, onClick }: CardProps) => {
-  const theme = useSelector((state: RootState) => state.theme.theme.state);
+  const { theme } = useTheme();
 
   return (
     <div className={`card ${theme === ThemeEnum.DARK ? 'dark' : 'light'}`}>
