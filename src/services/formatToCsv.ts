@@ -1,7 +1,7 @@
 import { ResultItem } from '../models/ResultItem.model';
 
-export const formatToCsv = (characters: ResultItem[]): string => {
-  const headers = Object.keys(characters[0]);
+export const formatToCsv = (characters: ResultItem[] = []): string => {
+  const headers = characters[0] ? Object.keys(characters[0]) : [];
 
   const csvContent = characters.map((character) => {
     const row = headers.map((header) => {

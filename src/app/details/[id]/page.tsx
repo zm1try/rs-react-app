@@ -11,8 +11,8 @@ export default async function DetailsPage({
   searchParams,
   params,
 }: {
-  searchParams: { page?: string; search?: string };
-  params: { id: string };
+  searchParams: Promise<{ page?: string; search?: string }>;
+  params: Promise<{ id: string }>;
 }) {
   const { page, search } = await searchParams;
   const { id } = await params;
